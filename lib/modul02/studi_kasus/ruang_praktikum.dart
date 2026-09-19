@@ -10,9 +10,16 @@ class RuangPraktikumPage extends StatefulWidget {
 
 class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
   bool isDarkMode = false;
+  String selectedStatus = 'Semua';
 
   @override
   Widget build(BuildContext context) {
+    final filteredSessions = selectedStatus == 'Semua'
+        ? roomSessions
+        : roomSessions
+              .where((session) => session.status == selectedStatus)
+              .toList();
+
     return Theme(
       data: ThemeData(
         useMaterial3: true,
@@ -51,6 +58,15 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 16),
+                  StatusFilter(
+                    selectedStatus: selectedStatus,
+                    onStatusChanged: (status) {
+                      setState(() {
+                        selectedStatus = status;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   ...roomSessions.map(
                     (session) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -69,9 +85,23 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
                   sliver: SliverToBoxAdapter(
-                    child: Text(
-                      'M02-2044',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'M02-2044',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 16),
+                        StatusFilter(
+                          selectedStatus: selectedStatus,
+                          onStatusChanged: (status) {
+                            setState(() {
+                              selectedStatus = status;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -79,8 +109,8 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      return RoomSessionCard(session: roomSessions[index]);
-                    }, childCount: roomSessions.length),
+                      return RoomSessionCard(session: filteredSessions[index]);
+                    }, childCount: filteredSessions.length),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: columnCount,
                       crossAxisSpacing: 16,
@@ -196,6 +226,42 @@ class _StatusBadge extends StatelessWidget {
           color: colorScheme.onSecondaryContainer,
         ),
       ),
+    );
+  }
+}
+
+class StatusFilter extends StatelessWidget {
+  final String selectedStatus;
+  final ValueChanged<String> onStatusChanged;
+
+  const StatusFilter({
+    super.key,
+    required this.selectedStatus,
+    required this.onStatusChanged,
+  });
+
+  static const statuses = [
+    'Semua',
+    'Berlangsung',
+    'Akan Datang',
+    'Selesai',
+    'Tersedia',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: statuses.map((status) {
+        return ChoiceChip(
+          label: Text(status),
+          selected: selectedStatus == status,
+          onSelected: (_) {
+            onStatusChanged(status);
+          },
+        );
+      }).toList(),
     );
   }
 }
