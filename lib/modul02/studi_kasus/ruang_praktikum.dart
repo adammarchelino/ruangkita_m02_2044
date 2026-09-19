@@ -36,16 +36,62 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
             ),
           ],
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(
-              'M02-2044',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            RoomSessionCard(session: roomSessions[0]),
-          ],
+
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+
+            // Compact: lebar kurang dari 600 dp
+            if (width < 600) {
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Text(
+                    'M02-2044',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 16),
+                  ...roomSessions.map(
+                    (session) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: RoomSessionCard(session: session),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            // Medium = 2 kolom, Expanded = 3 kolom
+            final columnCount = width < 840 ? 2 : 3;
+
+            return CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                  sliver: SliverToBoxAdapter(
+                    child: Text(
+                      'M02-2044',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return RoomSessionCard(session: roomSessions[index]);
+                    }, childCount: roomSessions.length),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columnCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      mainAxisExtent: 250,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -66,7 +112,7 @@ class RoomSessionCard extends StatelessWidget {
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 52, 16, 16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -109,7 +155,7 @@ class RoomSessionCard extends StatelessWidget {
                       Text(
                         session.description,
                         style: Theme.of(context).textTheme.bodySmall,
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
