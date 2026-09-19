@@ -6,8 +6,15 @@ void main() {
   runApp(const RuangKitaApp());
 }
 
-class RuangKitaApp extends StatelessWidget {
+class RuangKitaApp extends StatefulWidget {
   const RuangKitaApp({super.key});
+
+  @override
+  State<RuangKitaApp> createState() => _RuangKitaAppState();
+}
+
+class _RuangKitaAppState extends State<RuangKitaApp> {
+  bool isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +25,22 @@ class RuangKitaApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
-      home: const RuangPraktikumPage(),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: RuangPraktikumPage(
+        isDarkMode: isDarkMode,
+        onThemeChanged: () {
+          setState(() {
+            isDarkMode = !isDarkMode;
+          });
+        },
+      ),
     );
   }
 }

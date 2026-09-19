@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:ruangkita_m02/models/room_session.dart';
 
 class RuangPraktikumPage extends StatefulWidget {
-  const RuangPraktikumPage({super.key});
+  final bool isDarkMode;
+  final VoidCallback onThemeChanged;
+
+  const RuangPraktikumPage({
+    super.key,
+    required this.isDarkMode,
+    required this.onThemeChanged,
+  });
 
   @override
   State<RuangPraktikumPage> createState() => _RuangPraktikumPageState();
 }
 
 class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
-  bool isDarkMode = false;
   String selectedStatus = 'Semua';
 
   void _showSessionDetail(RoomSession session) {
@@ -99,116 +105,102 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
               .where((session) => session.status == selectedStatus)
               .toList();
 
-    return Theme(
-      data: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
-          brightness: isDarkMode ? Brightness.dark : Brightness.light,
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('RuangKita'),
+        actions: [
+          IconButton(
+            onPressed: widget.onThemeChanged,
+            icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            tooltip: 'Ganti tema',
+          ),
+        ],
       ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('RuangKita'),
-          actions: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  isDarkMode = !isDarkMode;
-                });
-              },
-              icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
-              tooltip: 'Ganti tema',
-            ),
-          ],
-        ),
 
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
 
-            // Compact: lebar kurang dari 600 dp
-            if (width < 600) {
-              return ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(
-                    'M02-2044',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 16),
-                  StatusFilter(
-                    selectedStatus: selectedStatus,
-                    onStatusChanged: (status) {
-                      setState(() {
-                        selectedStatus = status;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  ...roomSessions.map(
-                    (session) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: RoomSessionCard(
-                        session: session,
-                        onTap: () => _showSessionDetail(session),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-
-            // Medium = 2 kolom, Expanded = 3 kolom
-            final columnCount = width < 840 ? 2 : 3;
-
-            return CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-                  sliver: SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'M02-2044',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 16),
-                        StatusFilter(
-                          selectedStatus: selectedStatus,
-                          onStatusChanged: (status) {
-                            setState(() {
-                              selectedStatus = status;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+          // Compact: lebar kurang dari 600 dp
+          if (width < 600) {
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(
+                  'M02-2044',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  sliver: SliverGrid(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return RoomSessionCard(
-                        session: filteredSessions[index],
-                        onTap: () =>
-                            _showSessionDetail(filteredSessions[index]),
-                      );
-                    }, childCount: filteredSessions.length),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columnCount,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      mainAxisExtent: 250,
+                const SizedBox(height: 16),
+                StatusFilter(
+                  selectedStatus: selectedStatus,
+                  onStatusChanged: (status) {
+                    setState(() {
+                      selectedStatus = status;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                ...roomSessions.map(
+                  (session) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: RoomSessionCard(
+                      session: session,
+                      onTap: () => _showSessionDetail(session),
                     ),
                   ),
                 ),
               ],
             );
-          },
-        ),
+          }
+
+          // Medium = 2 kolom, Expanded = 3 kolom
+          final columnCount = width < 840 ? 2 : 3;
+
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'M02-2044',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 16),
+                      StatusFilter(
+                        selectedStatus: selectedStatus,
+                        onStatusChanged: (status) {
+                          setState(() {
+                            selectedStatus = status;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return RoomSessionCard(
+                      session: filteredSessions[index],
+                      onTap: () => _showSessionDetail(filteredSessions[index]),
+                    );
+                  }, childCount: filteredSessions.length),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columnCount,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    mainAxisExtent: 250,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
