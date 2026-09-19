@@ -12,6 +12,85 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
   bool isDarkMode = false;
   String selectedStatus = 'Semua';
 
+  void _showSessionDetail(RoomSession session) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        bool isFavorite = false;
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      session.roomName,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      session.activityName,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.schedule_outlined),
+                      title: const Text('Waktu'),
+                      subtitle: Text(session.time),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.info_outline),
+                      title: const Text('Status'),
+                      subtitle: _StatusBadge(status: session.status),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Deskripsi',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      session.description,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      secondary: Icon(
+                        isFavorite ? Icons.star : Icons.star_border,
+                      ),
+                      title: Text(
+                        isFavorite ? 'Favorit' : 'Tandai sebagai favorit',
+                      ),
+                      subtitle: Text(
+                        isFavorite
+                            ? 'Ruangan ditandai sebagai favorit'
+                            : 'Belum ditandai sebagai favorit',
+                      ),
+                      value: isFavorite,
+                      onChanged: (value) {
+                        setModalState(() {
+                          isFavorite = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredSessions = selectedStatus == 'Semua'
@@ -70,7 +149,10 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                   ...roomSessions.map(
                     (session) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: RoomSessionCard(session: session),
+                      child: RoomSessionCard(
+                        session: session,
+                        onTap: () => _showSessionDetail(session),
+                      ),
                     ),
                   ),
                 ],
@@ -109,7 +191,11 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate((context, index) {
-                      return RoomSessionCard(session: filteredSessions[index]);
+                      return RoomSessionCard(
+                        session: filteredSessions[index],
+                        onTap: () =>
+                            _showSessionDetail(filteredSessions[index]),
+                      );
                     }, childCount: filteredSessions.length),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: columnCount,
@@ -130,8 +216,9 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
 
 class RoomSessionCard extends StatelessWidget {
   final RoomSession session;
+  final VoidCallback? onTap;
 
-  const RoomSessionCard({super.key, required this.session});
+  const RoomSessionCard({super.key, required this.session, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -139,67 +226,70 @@ class RoomSessionCard extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 52, 16, 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 52, 16, 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.video_camera_back_outlined,
+                      color: colorScheme.onPrimaryContainer,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.video_camera_back_outlined,
-                    color: colorScheme.onPrimaryContainer,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          session.roomName,
+                          style: Theme.of(context).textTheme.labelLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          session.activityName,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          session.time,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          session.description,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        session.roomName,
-                        style: Theme.of(context).textTheme.labelLarge,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        session.activityName,
-                        style: Theme.of(context).textTheme.titleMedium,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        session.time,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        session.description,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Positioned(
-            top: 12,
-            right: 12,
-            child: _StatusBadge(status: session.status),
-          ),
-        ],
+            Positioned(
+              top: 12,
+              right: 12,
+              child: _StatusBadge(status: session.status),
+            ),
+          ],
+        ),
       ),
     );
   }
