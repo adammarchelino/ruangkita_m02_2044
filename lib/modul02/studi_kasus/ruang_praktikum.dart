@@ -140,7 +140,7 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                ...roomSessions.map(
+                ...filteredSessions.map(
                   (session) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: RoomSessionCard(
@@ -194,7 +194,7 @@ class _RuangPraktikumPageState extends State<RuangPraktikumPage> {
                     crossAxisCount: columnCount,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    mainAxisExtent: 250,
+                    mainAxisExtent: 230,
                   ),
                 ),
               ),
