@@ -92,7 +92,7 @@ Breakpoint ditentukan melalui `constraints.maxWidth` dari `LayoutBuilder`.
 Repository dikembangkan secara bertahap menggunakan beberapa commit untuk menunjukkan proses pengerjaan dan perbaikan.
 
 Commit final:
-`[isi hash commit final setelah seluruh pengerjaan selesai]`
+725ad89cd51264276861b8fb0e193cdf13a9461e
 
 ## Refleksi Teknis
 
